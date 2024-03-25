@@ -1,0 +1,28 @@
+class Solution {
+    public boolean isIdealPermutation(int[] nums) {
+        // Initialize the maximum value found to the left of the current position by two places.
+        // We start checking from the third element (at index 2), since we are interested in comparing
+        // it with the value at index 0 for any inversion that isn't local.
+        int maxToLeftByTwo = 0;
+
+        // Loop through the array starting from the third element.
+        // We don't need to check the first two elements because any inversion there is guaranteed to be local.
+        for (int i = 2; i < nums.length; ++i) {
+            // Update maxToLeftByTwo to the highest value found so far in nums,
+            // considering elements two positions to the left of the current index.
+            maxToLeftByTwo = Math.max(maxToLeftByTwo, nums[i - 2]);
+
+            // If the maximum value to the left (by two positions) is greater than the current element,
+            // it means there's a global inversion, and the array cannot be an ideal permutation.
+            if (maxToLeftByTwo > nums[i]) {
+                return false;
+            }
+        }
+
+        // If the loop completes without finding any global inversions other than local ones,
+        // the array is an ideal permutation.
+        return true;
+    }
+}
+        
+ 
