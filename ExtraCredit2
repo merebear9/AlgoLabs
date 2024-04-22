@@ -1,0 +1,46 @@
+import java.util.*;
+class Solution {
+    public List<List<Integer>> criticalConnections(int n, List<List<Integer>> connections) {
+
+        List<List<Integer>> graph = new ArrayList<>();
+        for (int i = 0; i < n; i++) {
+            graph.add(new ArrayList<>());
+        }
+        for (List<Integer> connection : connections) {
+            int u = connection.get(0);
+            int v = connection.get(1);
+            graph.get(u).add(v);
+            graph.get(v).add(u);
+        }
+
+        int[] discoveryTime = new int[n];
+        int[] lowLink = new int[n];
+        Arrays.fill(discoveryTime, -1);
+        List<List<Integer>> criticalConnections = new ArrayList<>();
+
+        dfs(0, -1, 0, graph, discoveryTime, lowLink, criticalConnections);
+
+        return criticalConnections;
+    }
+
+    private void dfs(int node, int parent, int time, List<List<Integer>> graph, int[] discoveryTime, int[] lowLink, List<List<Integer>> criticalConnections) {
+        discoveryTime[node] = time;
+        lowLink[node] = time;
+        time++;
+
+        for (int neighbor : graph.get(node)) {
+            if (neighbor == parent) {
+                continue;
+            }
+            if (discoveryTime[neighbor] == -1) { // Unvisited node
+                dfs(neighbor, node, time, graph, discoveryTime, lowLink, criticalConnections);
+                lowLink[node] = Math.min(lowLink[node], lowLink[neighbor]);
+                 if (lowLink[neighbor] > discoveryTime[node]) {
+                    criticalConnections.add(Arrays.asList(node, neighbor));
+                }
+            } else {
+                lowLink[node] = Math.min(lowLink[node], discoveryTime[neighbor]);
+            }
+        }
+    }
+}
