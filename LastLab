@@ -1,0 +1,69 @@
+
+def generate_legal_positions(rows, cols, shapes):
+    legal_positions = []
+    for shape, orientations in shapes.items():
+        for orientation in orientations:
+            for i in range(rows):
+                for j in range(cols):
+                    if is_legal_position(i, j, orientation, rows, cols):
+                        # Add legal position to the list
+                        legal_positions.append((shape, orientation, i, j))
+    return legal_positions
+
+def is_legal_position(row, col, orientation, rows, cols):
+    for k in range(0, len(orientation), 2):
+        x = row + orientation[k]
+        y = col + orientation[k + 1]
+        if not (0 <= x < rows and 0 <= y < cols):
+            return False
+    return True
+def encode_exact_cover_problem(rows, cols, shapes):
+    # Generate legal positions
+    legal_positions = generate_legal_positions(rows, cols, shapes)
+    
+    # Encode legal positions into sets
+    sets = []
+    for idx, (shape, orientation, row, col) in enumerate(legal_positions):
+        # Convert coordinates to linear index
+        linear_index = row * cols + col
+        
+        # Encode each legal position as a set
+        sets.append((shape, idx, linear_index))
+    
+    return sets
+
+class ExactCoverSolver:
+    def __init__(self, sets):
+        # Initialize solver with sets
+        self.sets = sets
+        self.solution_count = 0
+        self.solutions = []
+
+    def solve(self):
+        # Implement Algorithm X here
+        pass  # Placeholder for Algorithm X implementation
+
+    def count_solutions(self):
+        return self.solution_count
+
+# Define grid dimensions
+rows, cols = 3, 20
+
+# Define shapes with orientations
+shapes = {
+    'F': [[1, -1, 1, 0, 1, 1, 2, 1], [0, 1, 1, -1, 1, 0, 2, 0]]
+}
+
+# Encode Exact Cover Problem
+exact_cover_sets = encode_exact_cover_problem(rows, cols, shapes)
+
+# Initialize Exact Cover Solver
+solver = ExactCoverSolver(exact_cover_sets)
+
+# Solve Exact Cover Problem
+solver.solve()
+
+# Count and display number of solutions
+print("Number of solutions for {}x{} configuration: {}".format(rows, cols, solver.count_solutions()))
+
+
