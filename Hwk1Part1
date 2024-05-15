@@ -1,0 +1,127 @@
+class BinaryMinHeap<T> {
+    private static class HeapNode<T> {
+        T data;
+        int priority;
+
+        public HeapNode(T data, int priority) {
+            this.data = data;
+            this.priority = priority;
+        }
+    }
+
+    private HeapNode<T>[] heap;
+    private int capacity;
+    private int size;
+    private Object[] position;
+
+    public BinaryMinHeap(int capacity) {
+        this.capacity = capacity;
+        this.size = 0;
+        this.heap = new HeapNode[capacity];
+        this.position = new Object[capacity];
+    }
+
+    private int parent(int i) {
+        return (i - 1) / 2;
+    }
+
+    private int leftChild(int i) {
+        return 2 * i + 1;
+    }
+
+    private int rightChild(int i) {
+        return 2 * i + 2;
+    }
+
+    private void swap(int i, int j) {
+        HeapNode<T> temp = heap[i];
+        heap[i] = heap[j];
+        heap[j] = temp;
+
+        // Update positions in the position array
+        position[i] = heap[i].data;
+        position[j] = heap[j].data;
+    }
+
+    private void heapifyUp(int i) {
+        while (i > 0 && heap[parent(i)].priority > heap[i].priority) {
+            swap(i, parent(i));
+            i = parent(i);
+        }
+    }
+
+    private void heapifyDown(int i) {
+        int smallest = i;
+        int left = leftChild(i);
+        int right = rightChild(i);
+
+        if (left < size && heap[left].priority < heap[smallest].priority)
+            smallest = left;
+
+        if (right < size && heap[right].priority < heap[smallest].priority)
+            smallest = right;
+
+        if (smallest != i) {
+            swap(i, smallest);
+            heapifyDown(smallest);
+        }
+    }
+
+    public void insert(T data, int priority) {
+        if (size == capacity) {
+            System.out.println("Heap is full. Cannot insert more elements.");
+            return;
+        }
+        heap[size] = new HeapNode<>(data, priority);
+        position[size] = data;
+        heapifyUp(size++);
+    }
+
+    public HeapNode<T> findMin() {
+        if (size == 0) {
+            System.out.println("Heap is empty.");
+            return null;
+        }
+        return heap[0];
+    }
+
+    public void delete(int i) {
+        if (size == 0 || i >= size) {
+            System.out.println("Invalid index.");
+            return;
+        }
+        swap(i, size - 1);
+        heap[size - 1] = null;
+        position[size - 1] = null;
+        size--;
+        heapifyDown(i);
+    }
+
+    public HeapNode<T> extractMin() {
+        if (size == 0) {
+            System.out.println("Heap is empty.");
+            return null;
+        }
+        HeapNode<T> min = heap[0];
+        delete(0);
+        return min;
+    }
+
+    public void changePriority(T data, int newPriority) {
+        int index = -1;
+        for (int i = 0; i < size; i++) {
+            if (heap[i].data.equals(data)) {
+                index = i;
+                break;
+            }
+        }
+        if (index == -1) {
+            System.out.println("Item not found in heap.");
+            return;
+        }
+        int oldPriority = heap[index].priority;
+        heap[index].priority = newPriority;
+        if (newPriority < oldPriority) heapifyUp(index);
+        else heapifyDown(index);
+    }
+}
