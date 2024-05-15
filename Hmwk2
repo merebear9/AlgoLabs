@@ -1,0 +1,29 @@
+def maximize_pipe_value(N, T, lengths_values):
+    # Initialize dp array with 0s, size T + 1
+    dp = [0] * (T + 1)
+    
+    # Process each pipe size and its value
+    for Ci, Vi in lengths_values:
+        for j in range(Ci, T + 1):
+            dp[j] = max(dp[j], dp[j - Ci] + Vi)
+    
+    # The answer is the maximum value for the pipe of length T
+    return dp[T]
+
+def main():
+    import sys
+    input = sys.stdin.read
+    data = input().split()
+    
+    N = int(data[0])
+    T = int(data[1])
+    lengths_values = [(int(data[2 + 2*i]), int(data[3 + 2*i])) for i in range(N)]
+    
+    # Get the result
+    result = maximize_pipe_value(N, T, lengths_values)
+    
+    # Output the result
+    print(result)
+
+if __name__ == "__main__":
+    main()
