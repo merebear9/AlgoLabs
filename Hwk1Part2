@@ -1,0 +1,128 @@
+import java.util.*;
+import java.io.*;
+
+class Graph {
+    private Map<Integer, List<Node>> adjList;
+    private int vertices;
+    private Map<Integer, List<Integer>> prev; // To store the list of previous nodes for each vertex
+
+    Graph(int vertices) {
+        this.vertices = vertices;
+        adjList = new HashMap<>();
+        prev = new HashMap<>();
+        for (int i = 0; i < vertices; i++) {
+            adjList.put(i, new ArrayList<>());
+            prev.put(i, new ArrayList<>()); // Initialize the previous node list for each vertex
+        }
+    }
+
+    void addEdge(int src, int dest, int weight) {
+        adjList.get(src).add(new Node(dest, weight));
+    }
+
+    int[] dijkstra(int source, int destination) {
+        int[] dist = new int[vertices];
+        Arrays.fill(dist, Integer.MAX_VALUE);
+        dist[source] = 0;
+
+        PriorityQueue<Node> pq = new PriorityQueue<>((a, b) -> a.weight - b.weight);
+        pq.offer(new Node(source, 0));
+
+        while (!pq.isEmpty()) {
+            Node curr = pq.poll();
+            int u = curr.node;
+
+            if (u == destination) {
+                break;
+            }
+
+            if (curr.weight > dist[u]) {
+                continue;
+            }
+
+            for (Node neighbor : adjList.get(u)) {
+                int alt = dist[u] + neighbor.weight;
+                if (alt < dist[neighbor.node]) {
+                    dist[neighbor.node] = alt;
+                    prev.get(neighbor.node).clear(); // Clear the previous node list
+                    prev.get(neighbor.node).add(u); // Add the current node to the previous node list
+                    pq.offer(new Node(neighbor.node, alt));
+                } else if (alt == dist[neighbor.node]) {
+                    prev.get(neighbor.node).add(u); // Add the current node to the previous node list
+                }
+            }
+        }
+
+        return dist;
+    }
+
+    void removeShortestPathEdges(int source, int destination) {
+        dijkstra(source, destination); // Find all the shortest paths and store the previous nodes
+
+        boolean[] visited = new boolean[vertices];
+        Queue<Integer> queue = new LinkedList<>();
+        queue.offer(destination);
+        visited[destination] = true;
+
+        while (!queue.isEmpty()) {
+            int u = queue.poll();
+            for (int v : prev.get(u)) {
+                if (!visited[v]) {
+                    adjList.get(v).removeIf(n -> n.node == u); // Remove the edge (v, u) from the graph
+                    visited[v] = true;
+                    queue.offer(v);
+                }
+            }
+        }
+    }
+
+    int almostShortestPath(int source, int destination) {
+        removeShortestPathEdges(source, destination);
+        int[] dist = dijkstra(source, destination);
+        return dist[destination] == Integer.MAX_VALUE ? -1 : dist[destination];
+    }
+
+    static class Node {
+        int node;
+        int weight;
+
+        Node(int node, int weight) {
+            this.node = node;
+            this.weight = weight;
+        }
+    }
+}
+
+
+public class Main {
+    public static void main(String[] args) throws IOException {
+        BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
+        String line;
+        while ((line = br.readLine()) != null) {
+            String[] tokens = line.split(" ");
+            if (tokens[0].equals("0") && tokens[1].equals("0")) {
+                break;
+            }
+
+            int n = Integer.parseInt(tokens[0]);
+            int m = Integer.parseInt(tokens[1]);
+
+            Graph g = new Graph(n);
+
+            String[] startEnd = br.readLine().split(" ");
+            int source = Integer.parseInt(startEnd[0]);
+            int destination = Integer.parseInt(startEnd[1]);
+
+            for (int i = 0; i < m; i++) {
+                tokens = br.readLine().split(" ");
+                int u = Integer.parseInt(tokens[0]);
+                int v = Integer.parseInt(tokens[1]);
+                int p = Integer.parseInt(tokens[2]);
+                g.addEdge(u, v, p);
+            }
+
+            int length = g.almostShortestPath(source, destination);
+            System.out.println(length);
+        }
+    }
+}
